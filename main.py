@@ -57,7 +57,7 @@ def generirajBridove():
         while brojGeneriranihBridova < brojKontakata:
             nasumicniKraj = random.randint(0, postavke.brojRacunala-1)
 
-            if(cvor == postavke.cvorovi[nasumicniKraj]):
+            if cvor == postavke.cvorovi[nasumicniKraj]:
                 continue
 
             noviBrid = (cvor, postavke.cvorovi[nasumicniKraj])
@@ -65,28 +65,38 @@ def generirajBridove():
             if noviBrid not in postavke.bridovi and noviBridSuprotno not in postavke.bridovi:
                 postavke.bridovi.append(noviBrid)
             brojGeneriranihBridova += 1
+    print(postavke.bridovi)
 
-def izracunajNajkraciPut(graf):
-    return
+def izracunajNajkraciPut(G):
+    cvorovi = nx.shortest_path(G, source=postavke.pocetakSirenja, target=postavke.krajSirenja, weight='weight')
+    print(cvorovi)
+    return cvorovi
 
+def dohvatiOznaceneBridove(najkraciPut):
+    bridovi = []
+    for i in range(0, len(najkraciPut)-1):
+        bridovi.append((najkraciPut[i], najkraciPut[i+1]))
+        bridovi.append((najkraciPut[i+1], najkraciPut[i])) #isti brid, samo u obrnutom smjeru JUST IN CASE
+
+    print(bridovi)
+    return bridovi
 
 def iscrtajGraf():
     G = nx.Graph()
     G.add_edges_from(postavke.bridovi, weight=postavke.vrijemeSirenja)
 
     values = [0.1 for node in G.nodes()]
-    edge_labels = dict([((u, v,), d['weight']) for u, v, d in G.edges(data=True)])
-    red_edges = [('b', 'a'), ('b', 'e')]
-    edge_colors = ['black' if not edge in red_edges else 'red' for edge in G.edges()]
-    node_labels = {node: node for node in G.nodes()}
+    oznakeBridova = dict([((u, v,), d['weight']) for u, v, d in G.edges(data=True)])
+    oznakeCvorova = {node: node for node in G.nodes()}
+
+    crveniBridovi = dohvatiOznaceneBridove(izracunajNajkraciPut(G))
+    bojeBridova = ['black' if not edge in crveniBridovi else 'red' for edge in G.edges()]
 
     pos = nx.spring_layout(G)
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-    nx.draw(G, pos, node_color=values, node_size=2000, edge_color=edge_colors, edge_cmap=plt.cm.Reds)
-    nx.draw_networkx_labels(G, pos, labels=node_labels)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=oznakeBridova)
+    nx.draw(G, pos, node_color=values, node_size=2000, edge_color=bojeBridova, edge_cmap=plt.cm.Reds)
+    nx.draw_networkx_labels(G, pos, labels=oznakeCvorova)
     plt.show()
-    print(nx.shortest_path(G, source=postavke.pocetakSirenja, target=postavke.krajSirenja, weight='weight'))
-
 
 dohvatiPostavke()
 generirajBridove()
