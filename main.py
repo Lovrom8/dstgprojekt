@@ -65,12 +65,17 @@ def generirajBridove():
             if noviBrid not in postavke.bridovi and noviBridSuprotno not in postavke.bridovi:
                 postavke.bridovi.append(noviBrid)
             brojGeneriranihBridova += 1
-    print(postavke.bridovi)
 
 def izracunajNajkraciPut(G):
-    cvorovi = nx.shortest_path(G, source=postavke.pocetakSirenja, target=postavke.krajSirenja, weight='weight')
-    print(cvorovi)
-    return cvorovi
+    cvoroviNaNajkracem = nx.shortest_path(G, source=postavke.pocetakSirenja, target=postavke.krajSirenja, weight='weight')
+
+    ukupnaTezina = 0
+    for i in range(0, len(cvoroviNaNajkracem)-1):
+        ukupnaTezina += postavke.vrijemeSirenja
+
+    print("Duljina najkraceg puta = ", ukupnaTezina)
+    print('-'.join(map(str, cvoroviNaNajkracem)))
+    return cvoroviNaNajkracem
 
 def dohvatiOznaceneBridove(najkraciPut):
     bridovi = []
@@ -78,7 +83,6 @@ def dohvatiOznaceneBridove(najkraciPut):
         bridovi.append((najkraciPut[i], najkraciPut[i+1]))
         bridovi.append((najkraciPut[i+1], najkraciPut[i])) #isti brid, samo u obrnutom smjeru JUST IN CASE
 
-    print(bridovi)
     return bridovi
 
 def iscrtajGraf():
